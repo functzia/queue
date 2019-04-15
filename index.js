@@ -1,4 +1,4 @@
 module.exports = {
-  startQueueWorker = require('./worker'),
+  startQueueWorker: require('./worker'),
   startQueueBroker: require('./broker')
 };
