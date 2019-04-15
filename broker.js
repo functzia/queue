@@ -6,6 +6,7 @@ const send = (ws, value) => ws.send(JSON.stringify(value));
 
 module.exports = function startQueueBroker(port) {
   const wss = new WebSocketServer({ port });
+  const cache = {};
   const clients = new Set();
   const broadcast = value => clients.forEach(ws => send(ws, value));
   wss.on('connection', ws => {
@@ -15,6 +16,39 @@ module.exports = function startQueueBroker(port) {
       const data = JSON.parse(msg);
       const { type, value } = data;
       ws.emit(type, value);
+    });
+    ws.on('cache-request', data => {
+      let response;
+      switch (data.op) {
+        case 'get': {
+          const { requestId, key, fallback = null } = data;
+          if (!(key in cache)) {
+            cache[key] = fallback;
+          }
+          response = {
+            requestId,
+            value: cache[key],
+          };
+          break;
+        }
+        case 'set': {
+          const { requestId, key, value } = data;
+          cache[key] = value;
+          response = {
+            requestId,
+          };
+          break;
+        }
+        case 'delete': {
+          const { requestId, key } = data;
+          delete cache[key];
+          response = {
+            requestId,
+          };
+          break;
+        }
+      }
+      send(ws, { type: 'cache-response', response });
     });
   });
   function bidTask(taskType) {

@@ -15,7 +15,10 @@ sendTask('add', { x: 1, y: 2 }).then(value => console.log(value));
 // worker.js
 const { startQueueWorker } = require('@fofx/queue');
 const worker = startQueueWorker('ws://localhost:9000');
-worker.register(function add({ x, y }) {
+worker.register(async function add({ x, y }) {
+  const constant = await worker.get('const', 0);
+  const value = x + y + constant;
+  await worker.set('const', value);
   return x + y;
 });
 ```
