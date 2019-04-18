@@ -1,4 +1,4 @@
 module.exports = {
-  startQueueWorker: require('./worker'),
-  startQueueBroker: require('./broker')
+  local: require('./lib/local'),
+  distributed: require('./lib/distributed'),
 };

@@ -1,5 +1,5 @@
-const startWorker = require('../worker');
-const worker = startWorker('ws://localhost:8080');
+const { startQueueWorker } = require('..').distributed;
+const worker = startQueueWorker('ws://localhost:9090');
 worker
   .register(function add({ x, y }) {
     return x + y;
